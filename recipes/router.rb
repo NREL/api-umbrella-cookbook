@@ -21,13 +21,5 @@ group "api-umbrella" do
 end
 
 sudo "api_umbrella" do
-  user "api-umbrella-gatekeeper"
-
-  commands [
-    "/etc/init.d/nginx configtest",
-    "/etc/init.d/nginx reload",
-  ]
-
-  host "ALL"
-  nopasswd true
+  template "sudo.erb"
 end
