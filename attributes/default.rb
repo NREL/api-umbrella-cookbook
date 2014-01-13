@@ -24,6 +24,7 @@ default[:java][:jdk_version] = '7'
 default[:mongodb][:package_version] = '2.4.8-mongodb_1'
 
 default[:nginx][:install_method] = 'source'
+default[:nginx][:default_site_enabled] = false
 default[:nginx][:worker_processes] = 4
 default[:nginx][:gzip_disable] = 'msie6'
 default[:nginx][:gzip_types] = ['text/csv']
@@ -34,6 +35,16 @@ default[:nginx][:source][:version] = '1.4.4'
 default[:nginx][:source][:prefix] = '/opt/nginx'
 default[:nginx][:source][:checksum] = '7c989a58e5408c9593da0bebcd0e4ffc3d892d1316ba5042ddb0be5b0b4102b9'
 
+default[:nginx][:source][:modules] = [
+  'nginx::http_ssl_module',
+  'nginx::http_gzip_static_module',
+  'nginx::headers_more_module',
+  'nginx::http_echo_module',
+  'nginx::http_realip_module',
+  'nginx::http_stub_status_module',
+  'nginx::x_rid_header_module',
+  'nginx::passenger',
+]
 default[:nginx][:source][:url] = "http://nginx.org/download/nginx-#{node[:nginx][:source][:version]}.tar.gz"
 default[:nginx][:source][:sbin_path] = "#{node[:nginx][:source][:prefix]}/sbin/nginx"
 default[:nginx][:source][:default_configure_flags] = %W[

@@ -1,4 +1,3 @@
-default[:nginx][:source][:modules] = ['nginx::passenger']
 default[:nginx][:passenger][:version] = '4.0.23'
 
 # Run all passengers processes as the nginx user.
