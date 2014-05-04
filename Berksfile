@@ -2,6 +2,9 @@ site :opscode
 
 metadata
 
+# Not ideal, and we need to clean this up at some point, but since we have git
+# dependencies, don't include them in the metadata.rb file, see:
+# https://github.com/berkshelf/berkshelf/pull/304
 cookbook "acl", :github => "NREL-cookbooks/acl"
 cookbook "bundler", :github => "NREL-cookbooks/bundler"
 cookbook "elasticsearch", "~> 0.3.7"
