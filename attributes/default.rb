@@ -55,8 +55,8 @@ default[:nginx][:source][:default_configure_flags] = %W[
 
 default[:nodejs][:install_method] = 'binary'
 default[:nodejs][:dir] = '/opt/nodejs'
-default[:nodejs][:version] = '0.10.26'
-default[:nodejs][:checksum_linux_x64] = 'ef5e4ea6f2689ed7f781355012b942a2347e0299da0804a58de8e6281c4b1daa'
+default[:nodejs][:version] = '0.10.28'
+default[:nodejs][:checksum_linux_x64] = '5f41f4a90861bddaea92addc5dfba5357de40962031c2281b1683277a0f75932'
 
 default[:rbenv][:git_ref] = 'v0.4.0'
 default[:rbenv][:upgrade] = true
