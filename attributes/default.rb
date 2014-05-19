@@ -34,6 +34,7 @@ default[:nginx][:default_site_enabled] = false
 default[:nginx][:worker_processes] = 4
 default[:nginx][:gzip_disable] = 'msie6'
 default[:nginx][:gzip_types] = ['text/plain', 'text/css', 'application/x-javascript', 'text/xml', 'application/xml', 'application/rss+xml', 'application/atom+xml', 'text/javascript', 'application/javascript', 'application/json', 'text/mathml', 'text/csv']
+default[:nginx][:server_tokens] = 'off'
 override[:nginx][:realip][:real_ip_recursive] = 'on'
 override[:nginx][:realip][:addresses] = ['127.0.0.1', '10.0.0.0/16']
 default[:nginx][:server_names_hash_bucket_size] = 128
