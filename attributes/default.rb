@@ -12,6 +12,11 @@ default[:bundler][:version] = '1.6.2'
 default[:elasticsearch][:version] = '0.90.13'
 default[:elasticsearch][:checksum] = '82904d4c564fc893a1cfc0deb4526073900072a3f4667b995881a2ec5cdfdb43'
 
+# Use soft caches. This may lead to degraded performance, but it should
+# ensure ElasticSearch doesn't run out of memory and permanantly lock up.
+default[:elasticsearch][:custom_config]["index.fielddata.cache"] = "soft"
+default[:elasticsearch][:custom_config]["index.fielddata.cache.expire"] = "10m"
+
 # Default environment.
 default[:ENV] = 'development'
 
@@ -24,12 +29,14 @@ default[:java][:jdk_version] = '7'
 default[:mongodb][:package_version] = '2.4.10-mongodb_1'
 
 default[:nginx][:install_method] = 'source'
+default[:nginx][:user] = 'www-data-local'
 default[:nginx][:default_site_enabled] = false
 default[:nginx][:worker_processes] = 4
 default[:nginx][:gzip_disable] = 'msie6'
-default[:nginx][:gzip_types] = ['text/csv']
-default[:nginx][:realip][:real_ip_recursive] = 'on'
-default[:nginx][:realip][:addresses] = ['10.0.0.0/16']
+default[:nginx][:gzip_types] = ['text/plain', 'text/css', 'application/x-javascript', 'text/xml', 'application/xml', 'application/rss+xml', 'application/atom+xml', 'text/javascript', 'application/javascript', 'application/json', 'text/mathml', 'text/csv']
+override[:nginx][:realip][:real_ip_recursive] = 'on'
+override[:nginx][:realip][:addresses] = ['127.0.0.1', '10.0.0.0/16']
+default[:nginx][:server_names_hash_bucket_size] = 128
 default[:nginx][:version] = '1.4.7'
 default[:nginx][:source][:version] = '1.4.7'
 default[:nginx][:source][:prefix] = '/opt/nginx'
