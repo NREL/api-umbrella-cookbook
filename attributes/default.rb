@@ -30,6 +30,7 @@ default[:mongodb][:package_version] = '2.4.10-mongodb_1'
 
 default[:nginx][:install_method] = 'source'
 default[:nginx][:user] = 'www-data-local'
+default[:nginx][:group] = 'www-data-local'
 default[:nginx][:default_site_enabled] = false
 default[:nginx][:worker_processes] = 4
 default[:nginx][:gzip_disable] = 'msie6'
