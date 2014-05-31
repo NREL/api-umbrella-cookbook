@@ -7,6 +7,8 @@
 # All rights reserved - Do Not Redistribute
 #
 
+default[:authorization][:sudo][:include_sudoers_d] = true
+
 default[:bundler][:version] = '1.6.2'
 
 default[:elasticsearch][:version] = '0.90.13'
