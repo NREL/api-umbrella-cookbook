@@ -4,7 +4,7 @@ maintainer_email 'nick.muerdter@nrel.gov'
 license          'All rights reserved'
 description      'Installs/Configures api-umbrella'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          '0.3.3'
+version          '0.3.4'
 
 depends "acl"
 depends "bundler"
@@ -29,5 +29,6 @@ depends "selinux"
 depends "shasum"
 depends "sudo"
 depends "supervisor"
+depends "ulimit"
 depends "varnish"
 depends "xml"

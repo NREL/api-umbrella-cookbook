@@ -16,6 +16,7 @@ include_recipe 'redis'
 include_recipe 'sudo'
 include_recipe 'supervisor'
 include_recipe 'supervisor::rolling_restart'
+include_recipe 'ulimit'
 include_recipe 'varnish'
 include_recipe 'varnish::ban'
 include_recipe 'geoip::nodejs'
@@ -35,6 +36,20 @@ end
 
 sudo 'api_umbrella' do
   template 'sudo.erb'
+end
+
+ulimit_domain 'api_umbrella' do
+  domain_name '*'
+  rule do
+    item :nofile
+    type :hard
+    value 40000
+  end
+  rule do
+    item :nofile
+    type :soft
+    value 40000
+  end
 end
 
 logrotate_app 'api_umbrella_gatekeeper' do
