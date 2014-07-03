@@ -1,4 +1,8 @@
-default[:nginx][:passenger][:version] = '4.0.41'
+default[:nginx][:passenger][:version] = '4.0.45'
+default[:nginx][:passenger][:spawn_method] = 'smart'
+
+# Don't buffer responses.
+default[:nginx][:passenger][:buffer_response] = 'off'
 
 # Run all passengers processes as the nginx user.
 default[:nginx][:passenger][:user_switching] = false
