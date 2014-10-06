@@ -18,16 +18,16 @@ ruby_block "shutdown_elasticsearch_if_running" do
       TCPSocket.new("localhost", 9200)
 
       system <<-eos
-        curl -XPUT localhost:9200/_cluster/settings -d '{
+        curl -s -XPUT localhost:9200/_cluster/settings -d '{
           "persistent" : {
             "cluster.routing.allocation.disable_allocation" : true
           }
         }'
       eos
 
-      system "curl -XPOST 'http://localhost:9200/_shutdown'"
+      system "curl -s -XPOST 'http://localhost:9200/_shutdown'"
 
-      puts "Waiting for elasticsearch to shutdown..."
+      puts "\nWaiting for elasticsearch to shutdown..."
       while true
         begin
           TCPSocket.new("localhost", 9200)
@@ -38,7 +38,7 @@ ruby_block "shutdown_elasticsearch_if_running" do
         sleep 5
       end
     rescue Errno::ECONNREFUSED
-      puts "Elasticsearch not running... skipping shutdown"
+      puts "\nElasticsearch not running... skipping shutdown"
     end
   end
 end
@@ -65,9 +65,9 @@ ruby_block "wait_for_elasticsearch" do
   block do
     require "json"
 
-    puts "Waiting for elasticsearch..."
+    puts "\nWaiting for elasticsearch..."
     while true
-      body = `curl 'http://localhost:50200/_cluster/health'`.strip
+      body = `curl -s 'http://localhost:50200/_cluster/health'`.strip
       unless(body.empty?)
         data = JSON.parse(body)
         if(%w(yellow green).include?(data["status"]))
@@ -81,7 +81,7 @@ ruby_block "wait_for_elasticsearch" do
 end
 
 execute <<-eos
-  curl -XPUT localhost:50200/_cluster/settings -d '{
+  curl -s -XPUT http://localhost:50200/_cluster/settings -d '{
     "persistent" : {
       "cluster.routing.allocation.disable_allocation": false,
       "cluster.routing.allocation.enable" : "all"
