@@ -14,7 +14,7 @@ package_local_path = "#{Chef::Config[:file_cache_path]}/#{package_name}"
 
 remote_file(package_local_path) do
   source "https://developer.nrel.gov/downloads/api-umbrella/#{package_name}"
-  checksum "14bfab10d735ef461baff5ceb0a966d6d42569b146f55bcece0fed2f87c23c57"
+  checksum "c4173e5beb3e65d08888a724b7a360b09e70753acbd79342f60940044d2ecbe8"
 end
 
 package "api-umbrella" do

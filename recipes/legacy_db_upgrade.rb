@@ -7,6 +7,9 @@
 # All rights reserved - Do Not Redistribute
 #
 
+execute "rsync -av /var/lib/mongodb/ /opt/api-umbrella/var/db/mongodb/"
+execute "rsync -av /usr/local/var/data/elasticsearch/ /opt/api-umbrella/var/db/elasticsearch/"
+
 ruby_block "shutdown_elasticsearch_if_running" do
   block do
     require "socket"
@@ -37,7 +40,7 @@ ruby_block "shutdown_elasticsearch_if_running" do
     rescue Errno::ECONNREFUSED
       puts "Elasticsearch not running... skipping shutdown"
     end
-
+  end
 end
 
 service "mongod" do
@@ -67,7 +70,7 @@ ruby_block "wait_for_elasticsearch" do
       body = `curl 'http://localhost:50200/_cluster/health'`.strip
       unless(body.empty?)
         data = JSON.parse(body)
-        if(%w(yellow green).include?(data["status"])
+        if(%w(yellow green).include?(data["status"]))
           break
         end
       end
