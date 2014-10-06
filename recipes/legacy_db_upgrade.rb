@@ -8,7 +8,7 @@
 #
 
 execute "rsync -av /var/lib/mongodb/ /opt/api-umbrella/var/db/mongodb/"
-execute "rsync -av /usr/local/var/data/elasticsearch/ /opt/api-umbrella/var/db/elasticsearch/"
+execute "rsync -av /usr/local/var/data/elasticsearch/elasticsearch/ /opt/api-umbrella/var/db/elasticsearch/api-umbrella/"
 
 ruby_block "shutdown_elasticsearch_if_running" do
   block do
@@ -54,7 +54,7 @@ end
 execute "rsync -av /var/lib/mongodb/ /opt/api-umbrella/var/db/mongodb/"
 execute "chown -R api-umbrella:api-umbrella /opt/api-umbrella/var/db/mongodb"
 
-execute "rsync -av /usr/local/var/data/elasticsearch/ /opt/api-umbrella/var/db/elasticsearch/"
+execute "rsync -av /usr/local/var/data/elasticsearch/elasticsearch/ /opt/api-umbrella/var/db/elasticsearch/api-umbrella/"
 execute "chown -R api-umbrella:api-umbrella /opt/api-umbrella/var/db/elasticsearch"
 
 service "api-umbrella" do
@@ -67,7 +67,7 @@ ruby_block "wait_for_elasticsearch" do
 
     puts "\nWaiting for elasticsearch..."
     while true
-      body = `curl -s 'http://localhost:50200/_cluster/health'`.strip
+      body = `curl -s 'http://localhost:9200/_cluster/health'`.strip
       unless(body.empty?)
         data = JSON.parse(body)
         if(%w(yellow green).include?(data["status"]))
@@ -81,7 +81,7 @@ ruby_block "wait_for_elasticsearch" do
 end
 
 execute <<-eos
-  curl -s -XPUT http://localhost:50200/_cluster/settings -d '{
+  curl -s -XPUT http://localhost:9200/_cluster/settings -d '{
     "persistent" : {
       "cluster.routing.allocation.disable_allocation": false,
       "cluster.routing.allocation.enable" : "all"
