@@ -2,24 +2,25 @@
 # Cookbook Name:: api-umbrella
 # Recipe:: default
 #
-# Copyright 2013, YOUR_COMPANY_NAME
+# Copyright 2013, NREL
 #
 # All rights reserved - Do Not Redistribute
 #
 
-# Varnish doesn't seem to get along with SELinux. Should investigate more.
-include_recipe 'selinux::permissive'
+require "yaml"
 
-# Manage the sudoers file
-include_recipe 'sudo'
-include_recipe 'sudo::nrel_defaults'
-include_recipe 'sudo::secure_path'
+package_name = "api-umbrella-0.6.0-1.el6.x86_64.rpm"
+package_local_path = "#{Chef::Config[:file_cache_path]}/#{package_name}"
 
-# For fetching and committing our code.
-include_recipe 'git'
+remote_file(package_local_path) do
+  source "https://developer.nrel.gov/downloads/api-umbrella/#{package_name}"
+  checksum "14bfab10d735ef461baff5ceb0a966d6d42569b146f55bcece0fed2f87c23c57"
+end
 
-# Ensure ntp is used to keep clocks in sync.
-include_recipe 'ntp'
+package "api-umbrella" do
+  source package_local_path
+end
 
-# Standardize the shasum implementation (used for deployments).
-include_recipe 'shasum'
+template "/etc/api-umbrella/api-umbrella.yml" do
+  source "api-umbrella.yml.erb"
+end

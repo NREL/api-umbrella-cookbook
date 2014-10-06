@@ -1,7 +1,0 @@
-# This file is managed by Chef.
-# Do NOT modify this file directly.
-
-Cmnd_Alias API_UMBRELLA_NOPASSWD_COMMANDS = /etc/init.d/nginx configtest,/etc/init.d/nginx reload
-api-umbrella-gatekeeper ALL=(ALL) NOPASSWD:API_UMBRELLA_NOPASSWD_COMMANDS
-api-umbrella-deployer ALL=(ALL) NOPASSWD:API_UMBRELLA_NOPASSWD_COMMANDS
-Defaults!API_UMBRELLA_NOPASSWD_COMMANDS !requiretty
