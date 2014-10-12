@@ -8,7 +8,7 @@
 #
 
 default[:api_umbrella][:version] = "0.6.0"
-default[:api_umbrella][:package_checksum] = "99a94e7fd10475dd22c2ed5e5979b9b7cda69ccfa2bd1462ac422ac044497332"
+default[:api_umbrella][:package_checksum] = "74c3fdff4278f90b699e07806ba1804e1f961ebc5aa89c8a01a2ed6e01298406"
 
 default[:api_umbrella][:config][:services] = [
   "general_db",
