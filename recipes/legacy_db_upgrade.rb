@@ -51,10 +51,10 @@ service "elasticsearch" do
   action [:stop, :disable]
 end
 
-execute "rsync -av /var/lib/mongodb/ /opt/api-umbrella/var/db/mongodb/"
+execute "rsync -av --delete-after /var/lib/mongodb/ /opt/api-umbrella/var/db/mongodb/"
 execute "chown -R api-umbrella:api-umbrella /opt/api-umbrella/var/db/mongodb"
 
-execute "rsync -av /usr/local/var/data/elasticsearch/elasticsearch/ /opt/api-umbrella/var/db/elasticsearch/api-umbrella/"
+execute "rsync -av --delete-after /usr/local/var/data/elasticsearch/elasticsearch/ /opt/api-umbrella/var/db/elasticsearch/api-umbrella/"
 execute "chown -R api-umbrella:api-umbrella /opt/api-umbrella/var/db/elasticsearch"
 
 service "api-umbrella" do
