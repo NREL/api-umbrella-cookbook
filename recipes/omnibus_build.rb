@@ -21,7 +21,11 @@ execute "bundle install" do
   })
 end
 
-execute "bin/omnibus build api-umbrella -l info" do
+execute "omnibus build api-umbrella" do
+  # Output to a temp log file, in addition to the screen. Since the build takes
+  # a long time, this allows us to login to the machine to view progress, while
+  # also ensuring the output is captured by Chef in case things error.
+  command "bin/omnibus build api-umbrella -l info 2>&1 | tee /tmp/api-umbrella-build.log"
   cwd "/home/vagrant/api-umbrella"
   user "vagrant"
   group "vagrant"
