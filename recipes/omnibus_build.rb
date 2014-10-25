@@ -9,8 +9,12 @@
 
 execute "bundle install" do
   cwd "/home/vagrant/api-umbrella"
+  user "vagrant"
+  group "vagrant"
 end
 
 execute "bin/omnibus build api-umbrella -l info" do
   cwd "/home/vagrant/api-umbrella"
+  user "vagrant"
+  group "vagrant"
 end
