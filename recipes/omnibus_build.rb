@@ -21,15 +21,7 @@ node.run_state[:api_umbrella_log_redirect] = "2>&1 | tee -a #{build_log_file}; t
 # properly, so omnibus's ruby version doesn't get picked up).
 # See: https://tickets.opscode.com/browse/CHEF-2288
 def command_as_build_user(command)
-  env = {
-    # Use system-installed gecode to speed up installation:
-    # https://github.com/berkshelf/berkshelf/issues/1166#issuecomment-41562621
-    "USE_SYSTEM_GECODE" => "1",
-  }
-
-  env_string = env.map { |k,v| "#{k}=#{v}" }.join(" ")
-
-  "su -l -c 'cd #{node[:omnibus][:build_dir]} && env #{env_string} #{command} #{node.run_state[:api_umbrella_log_redirect]}' #{node[:omnibus][:build_user]}"
+  "su -l -c 'cd #{node[:omnibus][:build_dir]} && env #{command} #{node.run_state[:api_umbrella_log_redirect]}' #{node[:omnibus][:build_user]}"
 end
 
 # Places the built packages in a directory based on the platform and version.
