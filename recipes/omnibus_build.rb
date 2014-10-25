@@ -33,7 +33,6 @@ build_script = <<-EOH
   set -e
   rm -rf #{package_dir} /var/cache/omnibus/pkg/*
   mkdir -p #{package_dir}
-  #{command_as_build_user("env")}
   #{command_as_build_user("bundle install")}
   #{command_as_build_user("bin/omnibus build api-umbrella -l info --override package_dir:#{package_dir}")}
 
@@ -46,6 +45,7 @@ EOH
 bash "build api-umbrella" do
   cwd node[:omnibus][:build_dir]
   code build_script
+  timeout 7200
   only_if do
     Chef::Log.info("\n\n\nBuilding api-umbrella, this could take a while...\n(tail #{build_log_file} to view progress)\n")
     true
