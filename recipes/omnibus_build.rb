@@ -21,6 +21,7 @@ execute "bundle install" do
   })
 end
 
+Chef::Log.info("Building api-umbrella, this could take a while...")
 execute "omnibus build api-umbrella" do
   # Output to a temp log file, in addition to the screen. Since the build takes
   # a long time, this allows us to login to the machine to view progress, while
