@@ -14,6 +14,10 @@ execute "bundle install" do
   environment({
     "HOME" => "/home/vagrant",
     "USER" => "vagrant",
+
+    # Use system-installed gecode to speed up installation:
+    # https://github.com/berkshelf/berkshelf/issues/1166#issuecomment-41562621
+    "USE_SYSTEM_GECODE" => "1",
   })
 end
 
