@@ -7,31 +7,55 @@
 # All rights reserved - Do Not Redistribute
 #
 
-execute "bundle install" do
-  cwd "/home/vagrant/api-umbrella"
-  user "vagrant"
-  group "vagrant"
-  environment({
-    "HOME" => "/home/vagrant",
-    "USER" => "vagrant",
+include_recipe "omnibus"
 
+# Output to a temp log file, in addition to the screen. Since the build takes
+# a long time, this allows us to login to the machine to view progress, while
+# also ensuring the output is captured by Chef in case things error.
+build_log_file = ".kitchen/logs/#{node[:hostname]}-api-umbrella-build.log"
+node.run_state[:api_umbrella_log_redirect] = "2>&1 | tee -a #{build_log_file}; test ${PIPESTATUS[0]} -eq 0"
+
+# Workaround for the fact that chef's bash resource doesn't have an easy way to
+# run a command as a non-root user, taking into account that user's login stuff
+# (without this, the omnibus bash environment variables don't get setup
+# properly, so omnibus's ruby version doesn't get picked up).
+# See: https://tickets.opscode.com/browse/CHEF-2288
+def command_as_build_user(command)
+  env = {
     # Use system-installed gecode to speed up installation:
     # https://github.com/berkshelf/berkshelf/issues/1166#issuecomment-41562621
     "USE_SYSTEM_GECODE" => "1",
-  })
+  }
+
+  env_string = env.map { |k,v| "#{k}=#{v}" }.join(" ")
+
+  "su -l -c 'cd #{node[:omnibus][:build_dir]} && env #{env_string} #{command} #{node.run_state[:api_umbrella_log_redirect]}' #{node[:omnibus][:build_user]}"
 end
 
-Chef::Log.info("Building api-umbrella, this could take a while...")
-execute "omnibus build api-umbrella" do
-  # Output to a temp log file, in addition to the screen. Since the build takes
-  # a long time, this allows us to login to the machine to view progress, while
-  # also ensuring the output is captured by Chef in case things error.
-  command "bin/omnibus build api-umbrella -l info 2>&1 | tee /tmp/api-umbrella-build.log"
-  cwd "/home/vagrant/api-umbrella"
-  user "vagrant"
-  group "vagrant"
-  environment({
-    "HOME" => "/home/vagrant",
-    "USER" => "vagrant",
-  })
+# Places the built packages in a directory based on the platform and version.
+# This prevents builds from different OS versions from colliding and
+# overwriting each other.
+package_dir = File.join(node[:omnibus][:build_dir], "pkg/#{node[:platform]}-#{node[:platform_version]}")
+
+build_script = <<-EOH
+  set -e
+  rm -rf #{package_dir} /var/cache/omnibus/pkg/*
+  mkdir -p #{package_dir}
+  #{command_as_build_user("env")}
+  #{command_as_build_user("bundle install")}
+  #{command_as_build_user("bin/omnibus build api-umbrella -l info --override package_dir:#{package_dir}")}
+
+  # There's a hard-coded "package_me" step in omnibus that copies the built
+  # packages to the root pkg/ directory. We don't need theese, since we want
+  # them in the OS-specific directories.
+  #{command_as_build_user("rm -f pkg/*.deb pkg/*.rpm pkg/*.json")}
+EOH
+
+bash "build api-umbrella" do
+  cwd node[:omnibus][:build_dir]
+  code build_script
+  only_if do
+    Chef::Log.info("\n\n\nBuilding api-umbrella, this could take a while...\n(tail #{build_log_file} to view progress)\n")
+    true
+  end
 end
