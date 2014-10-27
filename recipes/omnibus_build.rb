@@ -7,6 +7,8 @@
 # All rights reserved - Do Not Redistribute
 #
 
+::Chef::Recipe.send(:include, ::ApiUmbrella::OmnibusHelpers)
+
 include_recipe "omnibus"
 
 # Output to a temp log file, in addition to the screen. Since the build takes
@@ -31,7 +33,7 @@ end
 # Places the built packages in a directory based on the platform and version.
 # This prevents builds from different OS versions from colliding and
 # overwriting each other.
-package_dir = File.join(node[:omnibus][:build_dir], "pkg/#{node[:platform]}-#{node[:platform_version]}")
+package_dir = File.join(node[:omnibus][:build_dir], "pkg/#{omnibus_package_dir}")
 
 # Cache the downloads in a local directory on the host machine, so that the
 # cache persists across the kitchen instances getting destroyed and re-created.

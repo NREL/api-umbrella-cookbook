@@ -30,8 +30,17 @@ remote_file "api-umbrella-package" do
   end
 end
 
+if(node[:platform_family] == "debian")
+  # dpkg doesn't install dependencies. We should look into a real apt repo.
+  package "gcc"
+end
+
 package "api-umbrella" do
   source package_local_path
+  if(node[:platform_family] == "debian")
+    provider Chef::Provider::Package::Dpkg
+  end
+
   only_if { ::File.exists?(package_local_path) }
 end
 

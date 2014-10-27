@@ -7,9 +7,11 @@
 # All rights reserved - Do Not Redistribute
 #
 
+::Chef::Resource::RubyBlock.send(:include, ::ApiUmbrella::OmnibusHelpers)
+
 ruby_block "symlink-api-umbrella-built-package" do
   block do
-    package_dir = "/home/vagrant/api-umbrella/pkg/#{node[:platform]}-#{node[:platform_version]}"
+    package_dir = "/home/vagrant/api-umbrella/pkg/#{omnibus_package_dir}"
     package_files = Dir.glob(File.join(package_dir, "*"))
     package_files.map! { |file| file.gsub(".metadata.json", "") }
     package_files.uniq!
@@ -25,18 +27,19 @@ ruby_block "symlink-api-umbrella-built-package" do
   end
 end
 
+if(node[:platform_family] == "debian")
+  # dpkg doesn't install dependencies. We should look into a real apt repo.
+  package "gcc"
+end
+
 package "api-umbrella" do
   case node[:platform_family]
   when "rhel"
     source "#{Chef::Config[:file_cache_path]}/api-umbrella-omnibus-test.rpm"
   when "debian"
     source "#{Chef::Config[:file_cache_path]}/api-umbrella-omnibus-test.deb"
+    provider Chef::Provider::Package::Dpkg
   end
-end
-
-template "/etc/api-umbrella/api-umbrella.yml" do
-  source "api-umbrella.yml.erb"
-  notifies :reload, "service[api-umbrella]"
 end
 
 service "api-umbrella" do
