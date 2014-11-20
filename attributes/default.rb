@@ -43,7 +43,7 @@ when "debian"
 end
 
 if(package_path && package_checksum)
-  default[:api_umbrella][:package_path] = "https://developer.nrel.gov/downloads/api-umbrella/#{package_path}"
+  default[:api_umbrella][:package_url] = "https://developer.nrel.gov/downloads/api-umbrella/#{package_path}"
   default[:api_umbrella][:package_checksum] = package_checksum
 end
 
