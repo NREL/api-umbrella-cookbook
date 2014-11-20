@@ -10,7 +10,7 @@
 require "yaml"
 
 if(!node[:api_umbrella][:package_url] || !node[:api_umbrella][:package_checksum])
-  raise "Unsupported platform or version: #{node[:platform]} #{node[:platform_version]}"
+  raise "Unsupported platform or version (platform: #{node[:platform].inspect}, platform_family: #{node[:platform_family].inspect}, platform_version: #{node[:platform_version].inspect})"
 end
 
 package_name = ::File.basename(node[:api_umbrella][:package_url])
@@ -54,7 +54,9 @@ template "/etc/api-umbrella/api-umbrella.yml" do
   notifies :reload, "service[api-umbrella]"
 end
 
-service "api-umbrella" do
-  supports :restart => true, :status => true, :reload => true
-  action [:enable, :start]
+unless(node.recipe?("api-umbrella::development"))
+  service "api-umbrella" do
+    supports :restart => true, :status => true, :reload => true
+    action [:enable, :start]
+  end
 end

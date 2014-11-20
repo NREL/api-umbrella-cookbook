@@ -47,9 +47,4 @@ if(package_path && package_checksum)
   default[:api_umbrella][:package_checksum] = package_checksum
 end
 
-default[:api_umbrella][:config][:services] = [
-  "general_db",
-  "log_db",
-  "router",
-  "web",
-]
+default[:api_umbrella][:config] = {}
