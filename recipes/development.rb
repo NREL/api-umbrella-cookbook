@@ -26,6 +26,17 @@ node.set[:authorization][:sudo][:include_sudoers_d] = true
 node.set[:authorization][:sudo][:sudoers_defaults] = ["!env_reset", "!secure_path"]
 include_recipe "sudo"
 
+# If this vagrant box is running a local firewall, disable it to simplify
+# development setup.
+case(node[:platform_family])
+when "rhel"
+  %w(iptables ip6tables).each do |service_name|
+    service(service_name) do
+      action [:stop, :disable]
+    end
+  end
+end
+
 # Checkout local copies of the projects to /vagrant/workspace for development
 # work.
 %w(router static-site web).each do |project|
