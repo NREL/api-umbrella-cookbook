@@ -39,7 +39,7 @@ end
 
 # Checkout local copies of the projects to /vagrant/workspace for development
 # work.
-%w(router static-site web).each do |project|
+%w(gatekeeper router static-site web).each do |project|
   # Use a straight git clone command, rather than Chef's git resource, so that
   # the checkout is sitting on master, rather than a detached "deploy" branch.
   url = "https://github.com/NREL/api-umbrella-#{project}.git"
@@ -72,11 +72,12 @@ end
 # Now install API Umbrella's package.
 include_recipe "api-umbrella::default"
 
-
 # Change permissions from the default package installer so the vagrant user
 # owns things.
 bash "api_umbrella_permissions" do
   code <<-EOS
+    mkdir -p /opt/api-umbrella/embedded/apps/gatekeeper/shared/node_modules
+    chown -R vagrant:vagrant /opt/api-umbrella/embedded/apps/gatekeeper/shared/node_modules
     chown -R vagrant:vagrant /opt/api-umbrella/embedded/apps/web/shared/bundle
     chown -R vagrant:vagrant /opt/api-umbrella/embedded/apps/static-site/shared/bundle
     chown -R vagrant:vagrant /opt/api-umbrella/embedded/apps/router/shared/node_modules
@@ -120,11 +121,25 @@ bash "api_umbrella_static_site_install" do
   group "vagrant"
 end
 
+bash "api_umbrella_gatekeeper_install" do
+  code <<-EOS
+    cd /vagrant/workspace/gatekeeper
+    rm -f ./node_modules
+    ln -sf /opt/api-umbrella/embedded/apps/gatekeeper/shared/node_modules ./node_modules
+    npm install
+    sudo npm link
+  EOS
+  environment(env)
+  user "vagrant"
+  group "vagrant"
+end
+
 bash "api_umbrella_router_install" do
   code <<-EOS
     cd /vagrant/workspace/router
     rm -f ./node_modules
     ln -sf /opt/api-umbrella/embedded/apps/router/shared/node_modules ./node_modules
+    npm link api-umbrella-gatekeeper
     npm install
   EOS
   environment(env)
