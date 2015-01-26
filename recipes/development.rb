@@ -21,6 +21,12 @@ include_recipe "curl::libcurl"
 # Install git to checkout code.
 include_recipe "git"
 
+# Install phantomjs for running web tests.
+node.set[:phantomjs][:version] = "1.9.8"
+node.set[:phantomjs][:base_url] = "https://bitbucket.org/ariya/phantomjs/downloads"
+node.set[:phantomjs][:basename] = "phantomjs-#{node[:phantomjs][:version]}-linux-#{node[:kernel][:machine]}"
+include_recipe "phantomjs::source"
+
 # Since this is a dev box, keep our custom PATH when running sudo.
 node.set[:authorization][:sudo][:include_sudoers_d] = true
 node.set[:authorization][:sudo][:sudoers_defaults] = ["!env_reset", "!secure_path"]

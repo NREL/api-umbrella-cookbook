@@ -10,4 +10,5 @@ version          '0.6.0'
 depends "build-essential"
 depends "curl"
 depends "git"
+depends "phantomjs"
 depends "sudo"
