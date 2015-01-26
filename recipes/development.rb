@@ -9,6 +9,7 @@
 
 # Setup API Umbrella in development mode pointing to local checkouts.
 node.set[:api_umbrella][:config][:app_env] = "development"
+node.set[:api_umbrella][:config][:router][:dir] = "/vagrant/workspace/router"
 node.set[:api_umbrella][:config][:static_site][:dir] = "/vagrant/workspace/static-site"
 node.set[:api_umbrella][:config][:web][:dir] = "/vagrant/workspace/web"
 
