@@ -11,6 +11,7 @@
 
 include_recipe "git"
 include_recipe "omnibus"
+include_recipe "sudo"
 
 # Check out the omnibus repo if it doesn't exist. This is for building on EC2
 # where this isn't a synced folder like on Vagrant.
