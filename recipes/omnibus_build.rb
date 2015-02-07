@@ -9,7 +9,16 @@
 
 ::Chef::Recipe.send(:include, ::ApiUmbrella::OmnibusHelpers)
 
+include_recipe "git"
 include_recipe "omnibus"
+
+# Check out the omnibus repo if it doesn't exist. This is for building on EC2
+# where this isn't a synced folder like on Vagrant.
+execute "git clone https://github.com/NREL/NREL/omnibus-api-umbrella.git #{node[:omnibus][:build_dir]}" do
+  user node[:omnibus][:build_user]
+  group node[:omnibus][:build_user_group]
+  not_if { ::Dir.exists?(node[:omnibus][:build_dir]) }
+end
 
 # Output to a temp log file, in addition to the screen. Since the build takes
 # a long time, this allows us to login to the machine to view progress, while
