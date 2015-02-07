@@ -24,8 +24,17 @@ end
 # Output to a temp log file, in addition to the screen. Since the build takes
 # a long time, this allows us to login to the machine to view progress, while
 # also ensuring the output is captured by Chef in case things error.
-build_log_file = ".kitchen/logs/#{node[:hostname]}-api-umbrella-build.log"
+build_log_file = "#{node[:omnibus][:build_dir]}/.kitchen/logs/#{node[:hostname]}-api-umbrella-build.log"
+build_log_dir = File.dirname(build_log_file)
 node.run_state[:api_umbrella_log_redirect] = "2>&1 | tee -a #{build_log_file}; test ${PIPESTATUS[0]} -eq 0"
+
+# Make sure the log directory exists.
+directory build_log_dir do
+  user node[:omnibus][:build_user]
+  group node[:omnibus][:build_user_group]
+  recursive true
+  not_if { ::Dir.exists?(build_log_dir) }
+end
 
 # Workaround for the fact that chef's bash resource doesn't have an easy way to
 # run a command as a non-root user, taking into account that user's login stuff
