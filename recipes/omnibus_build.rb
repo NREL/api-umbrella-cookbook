@@ -73,6 +73,11 @@ build_script = <<-EOH
   # them in the OS-specific directories.
   #{command_as_build_user("rm -f pkg/*.deb pkg/*.rpm pkg/*.json")}
 
+  # Publish the build file.
+  if [ -n "$AWS_S3_BUCKET" ]; then
+    bundle exec omnibus publish s3 $AWS_S3_BUCKET #{package_dir}/*
+  fi
+
   # Add a file marker so we know this specific instance has successfully built
   # the packages.
   #{command_as_build_user("touch /var/cache/omnibus/.instance-build-complete")}
