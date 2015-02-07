@@ -11,9 +11,6 @@
 
 include_recipe "git"
 include_recipe "omnibus"
-
-node.set[:authorization][:sudo][:include_sudoers_d] = true
-node.set[:authorization][:sudo][:sudoers_defaults] = ["!env_reset", "!secure_path", "!require_tty"]
 include_recipe "sudo"
 
 # Check out the omnibus repo if it doesn't exist. This is for building on EC2
