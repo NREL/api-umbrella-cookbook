@@ -63,6 +63,12 @@ cache_dir = File.join(node[:omnibus][:build_dir], "download-cache/#{node[:platfo
 
 build_script = <<-EOH
   set -e
+
+  # If we're building on an EC2 box, source any environment variables.
+  if [ -e /tmp/kitchen_ec2_env.sh ]; then
+    source /tmp/kitchen_ec2_env.sh
+  fi
+
   rm -rf #{package_dir}
   #{command_as_build_user("env")}
   #{command_as_build_user("bundle install")}
