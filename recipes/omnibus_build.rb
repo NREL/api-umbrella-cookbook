@@ -42,9 +42,17 @@ end
 # properly, so omnibus's ruby version doesn't get picked up).
 # See: https://tickets.opscode.com/browse/CHEF-2288
 def command_as_build_user(command)
-  # Do everything in bundler without "host_machine" gems (these are only needed
-  # on the host machine and can save time during install).
-  env = "BUNDLE_WITHOUT=host_machine"
+  env = [
+    # Do everything in bundler without "host_machine" gems (these are only
+    # needed on the host machine and can save time during install).
+    "BUNDLE_WITHOUT=host_machine",
+
+    # If we're building on an EC2 box, set any environment variables.
+    "API_UMBRELLA_VERSION=#{node[:omnibus][:env][:api_umbrella_version]}",
+    "AWS_ACCESS_KEY=#{node[:omnibus][:env][:aws_access_key]}",
+    "AWS_SECRET_KEY=#{node[:omnibus][:env][:aws_secret_key]}",
+    "AWS_S3_BUCKET=#{node[:omnibus][:env][:aws_s3_bucket]}",
+  ].join(" ")
 
   "sudo -u #{node[:omnibus][:build_user]} bash -l -c 'cd #{node[:omnibus][:build_dir]} && env #{env} #{command} #{node.run_state[:api_umbrella_log_redirect]}'"
 end
