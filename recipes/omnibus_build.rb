@@ -64,10 +64,11 @@ cache_dir = File.join(node[:omnibus][:build_dir], "download-cache/#{node[:platfo
 build_script = <<-EOH
   set -e
 
-  # If we're building on an EC2 box, source any environment variables.
-  if [ -e /tmp/kitchen_ec2_env.sh ]; then
-    source /tmp/kitchen_ec2_env.sh
-  fi
+  # If we're building on an EC2 box, set any environment variables.
+  export API_UMBRELLA_VERSION=#{node[:omnibus][:env][:api_umbrella_version]}
+  export AWS_ACCESS_KEY=#{node[:omnibus][:env][:aws_access_key]}
+  export AWS_SECRET_KEY=#{node[:omnibus][:env][:aws_secret_key]}
+  export AWS_S3_BUCKET=#{node[:omnibus][:env][:aws_s3_bucket]}
 
   rm -rf #{package_dir}
   #{command_as_build_user("env")}
