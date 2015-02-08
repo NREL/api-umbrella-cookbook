@@ -14,6 +14,8 @@ package_dir = omnibus_package_dir
 package = omnibus_package
 
 if(node[:omnibus][:env][:aws_s3_bucket])
+  include_recipe "aws"
+
   aws_s3_file(package_path) do
     bucket node[:omnibus][:env][:aws_s3_bucket]
     aws_access_key_id node[:omnibus][:env][:aws_access_key]
