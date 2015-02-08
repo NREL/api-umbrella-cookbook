@@ -7,23 +7,22 @@
 # All rights reserved - Do Not Redistribute
 #
 
-::Chef::Resource::RubyBlock.send(:include, ::ApiUmbrella::OmnibusHelpers)
+::Chef::Recipe.send(:include, ::ApiUmbrella::OmnibusHelpers)
 
-ruby_block "symlink-api-umbrella-built-package" do
-  block do
-    package_dir = "/home/vagrant/api-umbrella/pkg/#{omnibus_package_dir}"
-    package_files = Dir.glob(File.join(package_dir, "*"))
-    package_files.map! { |file| file.gsub(".metadata.json", "") }
-    package_files.uniq!
+package_path = "#{Chef::Config[:file_cache_path]}/api-umbrella-omnibus-test.#{omnibus_package_extension}"
+package_dir = omnibus_package_dir
+package = omnibus_package
 
-    if(package_files.length > 1)
-      raise "multiple packages inside #{package_dir} - cannot detect which to use (#{package_files.inspect})"
-    elsif(package_files.length != 1)
-      raise "no packages to install found in #{package_dir}"
-    end
-
-    package_file = package_files.first
-    FileUtils.ln_sf(package_file, "#{Chef::Config[:file_cache_path]}/api-umbrella-omnibus-test#{File.extname(package_file)}")
+if(node[:omnibus][:env][:aws_s3_bucket])
+  aws_s3_file(package_path) do
+    bucket node[:omnibus][:env][:aws_s3_bucket]
+    aws_access_key_id node[:omnibus][:env][:aws_access_key]
+    aws_secret_access_key node[:omnibus][:env][:aws_secret_key]
+    remote_path "#{package_dir}/#{package}/#{package}"
+  end
+else
+  link(package_path) do
+    to File.join(node[:omnibus][:build_dir], "pkg", package_dir, package)
   end
 end
 
@@ -33,11 +32,9 @@ if(node[:platform_family] == "debian")
 end
 
 package "api-umbrella" do
+  source package_path
   case node[:platform_family]
-  when "rhel"
-    source "#{Chef::Config[:file_cache_path]}/api-umbrella-omnibus-test.rpm"
   when "debian"
-    source "#{Chef::Config[:file_cache_path]}/api-umbrella-omnibus-test.deb"
     provider Chef::Provider::Package::Dpkg
   end
 end

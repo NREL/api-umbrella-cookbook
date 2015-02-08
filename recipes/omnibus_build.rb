@@ -46,27 +46,23 @@ def command_as_build_user(command)
     # Do everything in bundler without "host_machine" gems (these are only
     # needed on the host machine and can save time during install).
     "BUNDLE_WITHOUT=host_machine",
+  ]
 
-    # If we're building on an EC2 box, set any environment variables.
-    "API_UMBRELLA_VERSION=#{node[:omnibus][:env][:api_umbrella_version]}",
-    "AWS_ACCESS_KEY=#{node[:omnibus][:env][:aws_access_key]}",
-    "AWS_SECRET_KEY=#{node[:omnibus][:env][:aws_secret_key]}",
-    "AWS_S3_BUCKET=#{node[:omnibus][:env][:aws_s3_bucket]}",
-  ].join(" ")
+  if node[:omnibus][:env]
+    node[:omnibus][:env].each do |key, value|
+      unless(value.to_s.empty?)
+        env << "#{key.to_s.upcase}=#{value}"
+      end
+    end
+  end
 
-  "sudo -u #{node[:omnibus][:build_user]} bash -l -c 'cd #{node[:omnibus][:build_dir]} && env #{env} #{command} #{node.run_state[:api_umbrella_log_redirect]}'"
+  "sudo -u #{node[:omnibus][:build_user]} bash -l -c 'cd #{node[:omnibus][:build_dir]} && env #{env.join(" ")} #{command} #{node.run_state[:api_umbrella_log_redirect]}'"
 end
 
 # Places the built packages in a directory based on the platform and version.
 # This prevents builds from different OS versions from colliding and
 # overwriting each other.
 package_dir = File.join(node[:omnibus][:build_dir], "pkg/#{omnibus_package_dir}")
-package_extension = case node[:platform_family]
-when "rhel"
-  "rpm"
-when "debian"
-  "deb"
-end
 
 # Cache the downloads in a local directory on the host machine, so that the
 # cache persists across the kitchen instances getting destroyed and re-created.
@@ -89,7 +85,7 @@ build_script = <<-EOH
 
   # Publish the build file.
   if [ -n "#{node[:omnibus][:env][:aws_s3_bucket]}" ]; then
-    #{command_as_build_user("bundle exec omnibus publish s3 #{node[:omnibus][:env][:aws_s3_bucket]} #{package_dir}/*.#{package_extension}")}
+    #{command_as_build_user("bundle exec omnibus publish s3 #{node[:omnibus][:env][:aws_s3_bucket]} #{package_dir}/#{omnibus_package}")}
   fi
 
   # Add a file marker so we know this specific instance has successfully built
