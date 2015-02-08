@@ -71,13 +71,6 @@ cache_dir = File.join(node[:omnibus][:build_dir], "download-cache/#{node[:platfo
 
 build_script = <<-EOH
   set -e
-
-  # If we're building on an EC2 box, set any environment variables.
-  export API_UMBRELLA_VERSION=#{node[:omnibus][:env][:api_umbrella_version]}
-  export AWS_ACCESS_KEY=#{node[:omnibus][:env][:aws_access_key]}
-  export AWS_SECRET_KEY=#{node[:omnibus][:env][:aws_secret_key]}
-  export AWS_S3_BUCKET=#{node[:omnibus][:env][:aws_s3_bucket]}
-
   rm -rf #{package_dir}
   #{command_as_build_user("env")}
   #{command_as_build_user("bundle install")}
@@ -89,8 +82,8 @@ build_script = <<-EOH
   #{command_as_build_user("rm -f pkg/*.deb pkg/*.rpm pkg/*.json")}
 
   # Publish the build file.
-  if [ -n "$AWS_S3_BUCKET" ]; then
-    bundle exec omnibus publish s3 $AWS_S3_BUCKET #{package_dir}/*
+  if [ -n "#{node[:omnibus][:env][:aws_s3_bucket]}" ]; then
+    #{command_as_build_user("bundle exec omnibus publish s3 #{node[:omnibus][:env][:aws_s3_bucket]} #{package_dir}/*")}
   fi
 
   # Add a file marker so we know this specific instance has successfully built
