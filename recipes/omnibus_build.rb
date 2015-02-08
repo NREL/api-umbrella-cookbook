@@ -61,6 +61,12 @@ end
 # This prevents builds from different OS versions from colliding and
 # overwriting each other.
 package_dir = File.join(node[:omnibus][:build_dir], "pkg/#{omnibus_package_dir}")
+package_extension = case node[:platform_family]
+when "rhel"
+  "rpm"
+when "debian"
+  "deb"
+end
 
 # Cache the downloads in a local directory on the host machine, so that the
 # cache persists across the kitchen instances getting destroyed and re-created.
@@ -83,7 +89,7 @@ build_script = <<-EOH
 
   # Publish the build file.
   if [ -n "#{node[:omnibus][:env][:aws_s3_bucket]}" ]; then
-    #{command_as_build_user("bundle exec omnibus publish s3 #{node[:omnibus][:env][:aws_s3_bucket]} #{package_dir}/*")}
+    #{command_as_build_user("bundle exec omnibus publish s3 #{node[:omnibus][:env][:aws_s3_bucket]} #{package_dir}/*.#{package_extension}")}
   fi
 
   # Add a file marker so we know this specific instance has successfully built
