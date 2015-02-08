@@ -139,6 +139,7 @@ if(node[:omnibus][:env][:kitchen_driver] == "aws")
   bash "cleanup api-umbrella tmp files" do
     code <<-EOS
       rm -rf /var/cache/omnibus
+      rm -rf /home/vagrant/*
     EOS
   end
 end
