@@ -93,6 +93,7 @@ build_script = <<-EOH
   #{command_as_build_user("touch /var/cache/omnibus/.instance-build-complete")}
 EOH
 
+progress_output_thread = nil
 bash "build api-umbrella" do
   cwd node[:omnibus][:build_dir]
   code build_script
@@ -103,7 +104,26 @@ bash "build api-umbrella" do
       false
     else
       Chef::Log.info("\n\n\nBuilding api-umbrella, this could take a while...\n(tail #{build_log_file} to view progress)\n")
+
+      # Since this is a long running task, continue to show some output on a 30
+      # second interval. This is an attempt to prevent SSH connections from
+      # dropping due to inactivity when provisioning on remote EC2 instance.
+      progress_output_thread = Thread.new do
+        while true
+          Chef::Log.info(".")
+          sleep 30
+        end
+      end
+
       true
+    end
+  end
+end
+
+ruby_block "stop_build_progress_output" do
+  block do
+    if(progress_output_thread)
+      progress_output_thread.kill
     end
   end
 end
