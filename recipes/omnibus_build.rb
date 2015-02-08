@@ -127,3 +127,19 @@ ruby_block "stop_build_progress_output" do
     end
   end
 end
+
+if(node[:omnibus][:env][:kitchen_driver] == "aws")
+  # After the build finishes try to clear up some space on AWS machines where
+  # we only have an 8GB partition. Ideally, we'd just expand the root
+  # partition, but I've run into problems doing so with the kitchen-ec2 plugin,
+  # so in the meantime, delete some files.
+  #
+  # This is done so that our integration tests after the build have enough
+  # space to start MongoDB and Elastic Search.
+  bash "cleanup api-umbrella tmp files" do
+    code <<-EOS
+      rm -rf /tmp/*
+      rm -rf /var/cache/omnibus
+    EOS
+  end
+end
