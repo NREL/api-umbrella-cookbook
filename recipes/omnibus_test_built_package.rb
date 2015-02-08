@@ -18,7 +18,8 @@ if(node[:omnibus][:env][:aws_s3_bucket])
     bucket node[:omnibus][:env][:aws_s3_bucket]
     aws_access_key_id node[:omnibus][:env][:aws_access_key]
     aws_secret_access_key node[:omnibus][:env][:aws_secret_key]
-    remote_path "#{package_dir}/#{package}/#{package}"
+    arch = if(node[:platform_family] == "debian") then "amd64" else "x86_64" end
+    remote_path "#{package_dir}/#{arch}/#{package}/#{package}"
   end
 else
   link(package_path) do
