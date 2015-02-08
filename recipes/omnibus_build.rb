@@ -138,7 +138,6 @@ if(node[:omnibus][:env][:kitchen_driver] == "aws")
   # space to start MongoDB and Elastic Search.
   bash "cleanup api-umbrella tmp files" do
     code <<-EOS
-      rm -rf /tmp/*
       rm -rf /var/cache/omnibus
     EOS
   end
