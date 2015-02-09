@@ -46,6 +46,10 @@ def command_as_build_user(command)
     # Do everything in bundler without "host_machine" gems (these are only
     # needed on the host machine and can save time during install).
     "BUNDLE_WITHOUT=host_machine",
+
+    # Reset the home directory, since that doesn't change properly under
+    # Ubuntu.
+    "HOME=/home/#{node[:omnibus][:build_user]}",
   ]
 
   if node[:omnibus][:env]
