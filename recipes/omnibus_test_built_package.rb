@@ -50,5 +50,5 @@ end
 # Write the environment variables to a file so the integration tests can access
 # them.
 File.open("/tmp/api_umbrella_omnibus_test_env.yml", "w") do |file|
-  file.write(YAML.dump(node[:omnibus][:env]))
+  file.write(YAML.dump(node[:omnibus][:env].to_hash))
 end
