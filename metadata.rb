@@ -4,7 +4,7 @@ maintainer_email 'nick.muerdter@nrel.gov'
 license          'All rights reserved'
 description      'Installs/Configures api-umbrella'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          '0.7.0'
+version          '0.7.1'
 
 # For the "development" recipe
 depends "build-essential", "~> 2.1.3"
