@@ -34,10 +34,11 @@ include_recipe "phantomjs"
 
 # Install unbound for api-umbrella-router tests.
 #
-# Use the RUNLEVEL=1 environment variable to disable Ubuntu based machines from
-# actually starting unbound up at the system level (this tends to break DNS
+# But make sure unbound is stopped, since on Ubuntu machines it starts up
+# automatically at the system level after install (this tends to break DNS
 # things on the machine). Our tests just need it present to spin up for testing
 # purposes on a separate port.
-ENV["RUNLEVEL"] = "1"
 package "unbound"
-ENV.delete("RUNLEVEL")
+service "unbound" do
+  action [:stop]
+end
