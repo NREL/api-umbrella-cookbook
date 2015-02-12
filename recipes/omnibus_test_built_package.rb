@@ -46,3 +46,9 @@ service "api-umbrella" do
   supports :restart => true, :status => true, :reload => true
   action [:enable, :start]
 end
+
+# Write the environment variables to a file so the integration tests can access
+# them.
+File.open("/tmp/api_umbrella_omnibus_test_env.yml", "w") do |file|
+  file.write(YAML.dump(node[:omnibus][:env]))
+end

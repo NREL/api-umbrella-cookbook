@@ -11,6 +11,13 @@
 
 include_recipe "git"
 include_recipe "omnibus"
+
+node.set[:authorization][:sudo][:include_sudoers_d] = true
+node.set[:authorization][:sudo][:sudoers_defaults] = [
+  "env_reset",
+  "!secure_path",
+  "!requiretty",
+]
 include_recipe "sudo"
 
 # Check out the omnibus repo if it doesn't exist. This is for building on EC2
@@ -147,3 +154,8 @@ if(node[:omnibus][:env][:kitchen_driver] == "aws")
     EOS
   end
 end
+
+# After building the packages finish, install dependencies for running all our
+# test suites on our individual components (part of the test/integration/build
+# test suite in the omnibus-api-umbrella repo).
+include_recipe "api-umbrella::omnibus_build_test"
