@@ -38,7 +38,9 @@ module ApiUmbrella
     end
 
     def omnibus_package
-      version = node[:omnibus][:env][:api_umbrella_version]
+      # The RPM version number changes hyphens to dashes (so if our version was
+      # 0.8.0-pre1, the package version will be 0.8.0_pre1).
+      version = node[:omnibus][:env][:api_umbrella_version].gsub(/-/, "_")
       iteration = node[:omnibus][:env][:api_umbrella_iteration] || 1
       extension = omnibus_package_extension
       package = case node[:platform_family]
