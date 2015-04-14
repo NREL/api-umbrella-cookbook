@@ -29,6 +29,7 @@ include_recipe "mongodb"
 # Install mongo-orchestration for api-umbrella-router tests where we want to
 # simulate replicaset changes and failures.
 include_recipe "python"
+python_pip "argparse"
 python_pip "mongo-orchestration"
 
 # Install PhantomJS for api-umbrella-web tests.
