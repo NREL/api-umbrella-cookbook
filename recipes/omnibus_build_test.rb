@@ -15,7 +15,7 @@ node.set[:java][:jdk_version] = 7
 include_recipe "java"
 
 # Install ElasticSearch for api-umbrella-web tests.
-node.set[:elasticsearch][:version] = "1.4.2"
+node.set[:elasticsearch][:version] = "1.5.1"
 node.set[:elasticsearch][:allocated_memory] = "256m"
 include_recipe "elasticsearch"
 service "elasticsearch" do
@@ -25,6 +25,11 @@ end
 # Install MongoDB for api-umbrella-web and api-umbrella-gatekeeper tests.
 node.set[:mongodb][:config][:smallfiles] = true
 include_recipe "mongodb"
+
+# Install mongo-orchestration for api-umbrella-router tests where we want to
+# simulate replicaset changes and failures.
+include_recipe "python"
+python_pip "mongo-orchestration"
 
 # Install PhantomJS for api-umbrella-web tests.
 node.set[:phantomjs][:version] = "1.9.8"
