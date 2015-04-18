@@ -7,8 +7,18 @@
 # All rights reserved - Do Not Redistribute
 #
 
-# Additional recipes for running tests on the omnibus build box after packaging
-# has finished.
+include_recipe "api-umbrella::omnibus_install_built_package"
+
+include_recipe "api-umbrella::development_ulimit"
+
+# Install compilers for building C gems and npm modules.
+include_recipe "build-essential"
+
+# Install libcurl as an npm test dependencies.
+include_recipe "curl::libcurl"
+
+# Install git for git bundler dependencies.
+include_recipe "git"
 
 # Install Java for ElasticSearch
 node.set[:java][:jdk_version] = 7
@@ -36,7 +46,7 @@ python_pip "mongo-orchestration"
 node.set[:phantomjs][:version] = "1.9.8"
 node.set[:phantomjs][:base_url] = "https://bitbucket.org/ariya/phantomjs/downloads"
 node.set[:phantomjs][:basename] = "phantomjs-#{node[:phantomjs][:version]}-linux-#{node[:kernel][:machine]}"
-include_recipe "phantomjs"
+include_recipe "phantomjs::source"
 
 # Install unbound for api-umbrella-router tests.
 #

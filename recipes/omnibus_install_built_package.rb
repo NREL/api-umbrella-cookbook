@@ -1,12 +1,3 @@
-#
-# Cookbook Name:: api-umbrella
-# Recipe:: omnibus_test_built_package
-#
-# Copyright 2014, NREL
-#
-# All rights reserved - Do Not Redistribute
-#
-
 ::Chef::Recipe.send(:include, ::ApiUmbrella::OmnibusHelpers)
 
 package_path = "#{Chef::Config[:file_cache_path]}/api-umbrella-omnibus-test.#{omnibus_package_extension}"
@@ -40,15 +31,4 @@ package "api-umbrella" do
   when "debian"
     provider Chef::Provider::Package::Dpkg
   end
-end
-
-service "api-umbrella" do
-  supports :restart => true, :status => true, :reload => true
-  action [:enable, :start]
-end
-
-# Write the environment variables to a file so the integration tests can access
-# them.
-File.open("/tmp/api_umbrella_omnibus_test_env.yml", "w") do |file|
-  file.write(YAML.dump(node[:omnibus][:env].to_hash))
 end

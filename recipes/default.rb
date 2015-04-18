@@ -7,8 +7,6 @@
 # All rights reserved - Do Not Redistribute
 #
 
-require "yaml"
-
 if(!node[:api_umbrella][:package_url] || !node[:api_umbrella][:package_checksum])
   raise "Unsupported platform or version (platform: #{node[:platform].inspect}, platform_family: #{node[:platform_family].inspect}, platform_version: #{node[:platform_version].inspect})"
 end
@@ -49,6 +47,7 @@ file "api-umbrella-package-cleanup" do
   action :delete
 end
 
+require "yaml"
 template "/etc/api-umbrella/api-umbrella.yml" do
   source "api-umbrella.yml.erb"
   notifies :reload, "service[api-umbrella]"

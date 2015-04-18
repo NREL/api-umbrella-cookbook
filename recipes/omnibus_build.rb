@@ -20,6 +20,8 @@ node.set[:authorization][:sudo][:sudoers_defaults] = [
 ]
 include_recipe "sudo"
 
+include_recipe "api-umbrella::development_ulimit"
+
 # Check out the omnibus repo if it doesn't exist. This is for building on EC2
 # where this isn't a synced folder like on Vagrant.
 execute "git clone https://github.com/NREL/omnibus-api-umbrella.git #{node[:omnibus][:build_dir]}" do
@@ -138,24 +140,3 @@ ruby_block "stop_build_progress_output" do
     end
   end
 end
-
-if(node[:omnibus][:env][:kitchen_driver] == "aws")
-  # After the build finishes try to clear up some space on AWS machines where
-  # we only have an 8GB partition. Ideally, we'd just expand the root
-  # partition, but I've run into problems doing so with the kitchen-ec2 plugin,
-  # so in the meantime, delete some files.
-  #
-  # This is done so that our integration tests after the build have enough
-  # space to start MongoDB and Elastic Search.
-  bash "cleanup api-umbrella tmp files" do
-    code <<-EOS
-      rm -rf /var/cache/omnibus
-      rm -rf /home/vagrant/*
-    EOS
-  end
-end
-
-# After building the packages finish, install dependencies for running all our
-# test suites on our individual components (part of the test/integration/build
-# test suite in the omnibus-api-umbrella repo).
-include_recipe "api-umbrella::omnibus_build_test"
