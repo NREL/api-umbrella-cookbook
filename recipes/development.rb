@@ -33,6 +33,8 @@ node.set[:authorization][:sudo][:include_sudoers_d] = true
 node.set[:authorization][:sudo][:sudoers_defaults] = ["!env_reset", "!secure_path"]
 include_recipe "sudo"
 
+include_recipe "api-umbrella::development_ulimit"
+
 # If this vagrant box is running a local firewall, disable it to simplify
 # development setup.
 case(node[:platform_family])
