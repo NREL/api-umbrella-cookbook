@@ -13,27 +13,13 @@ node.set[:api_umbrella][:config][:router][:dir] = "/vagrant/workspace/router"
 node.set[:api_umbrella][:config][:static_site][:dir] = "/vagrant/workspace/static-site"
 node.set[:api_umbrella][:config][:web][:dir] = "/vagrant/workspace/web"
 
-# Install compilers for building C gems and npm modules.
-include_recipe "build-essential"
-
-# Install libcurl as an npm test dependencies.
-include_recipe "curl::libcurl"
-
-# Install git to checkout code.
-include_recipe "git"
-
-# Install phantomjs for running web tests.
-node.set[:phantomjs][:version] = "1.9.8"
-node.set[:phantomjs][:base_url] = "https://bitbucket.org/ariya/phantomjs/downloads"
-node.set[:phantomjs][:basename] = "phantomjs-#{node[:phantomjs][:version]}-linux-#{node[:kernel][:machine]}"
-include_recipe "phantomjs::source"
+include_recipe "api-umbrella::development_ulimit"
+include_recipe "api-umbrella::test_dependencies"
 
 # Since this is a dev box, keep our custom PATH when running sudo.
 node.set[:authorization][:sudo][:include_sudoers_d] = true
 node.set[:authorization][:sudo][:sudoers_defaults] = ["!env_reset", "!secure_path"]
 include_recipe "sudo"
-
-include_recipe "api-umbrella::development_ulimit"
 
 # If this vagrant box is running a local firewall, disable it to simplify
 # development setup.
