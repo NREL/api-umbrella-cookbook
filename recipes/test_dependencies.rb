@@ -41,6 +41,9 @@ include_recipe "phantomjs::source"
 # automatically at the system level after install (this tends to break DNS
 # things on the machine). Our tests just need it present to spin up for testing
 # purposes on a separate port.
+if platform_family?("rhel")
+  include_recipe "yum-epel"
+end
 package "unbound"
 service "unbound" do
   action [:stop]
