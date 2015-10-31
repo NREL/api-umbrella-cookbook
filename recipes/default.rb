@@ -11,12 +11,13 @@ yum_repository "api-umbrella" do
   description "API Umbrella"
   baseurl "https://dl.bintray.com/nrel/api-umbrella-el6"
   gpgcheck false
-  gpgkey "https://bintray.com/user/downloadSubjectPublicKey?username=bintray"
   enabled true
   action :create
 end
 
-package "api-umbrella"
+package "api-umbrella" do
+  version node[:api_umbrella][:version]
+end
 
 require "yaml"
 template "/etc/api-umbrella/api-umbrella.yml" do
