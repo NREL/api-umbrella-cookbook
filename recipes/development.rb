@@ -1,18 +1,3 @@
-#
-# Cookbook Name:: api-umbrella
-# Recipe:: default
-#
-# Copyright 2013, NREL
-#
-# All rights reserved - Do Not Redistribute
-#
-
-# Setup API Umbrella in development mode pointing to local checkouts.
-node.set[:api_umbrella][:config][:app_env] = "development"
-node.set[:api_umbrella][:config][:router][:dir] = "/vagrant/workspace/router"
-node.set[:api_umbrella][:config][:static_site][:dir] = "/vagrant/workspace/static-site"
-node.set[:api_umbrella][:config][:web][:dir] = "/vagrant/workspace/web"
-
 include_recipe "api-umbrella::development_ulimit"
 include_recipe "api-umbrella::test_dependencies"
 
@@ -32,22 +17,12 @@ when "rhel"
   end
 end
 
-# Checkout local copies of the projects to /vagrant/workspace for development
-# work.
-%w(gatekeeper router static-site web).each do |project|
-  # Use a straight git clone command, rather than Chef's git resource, so that
-  # the checkout is sitting on master, rather than a detached "deploy" branch.
-  url = "https://github.com/NREL/api-umbrella-#{project}.git"
-  dir = "/vagrant/workspace/#{project}"
-  execute "git clone #{url} #{dir}" do
-    user "vagrant"
-    group "vagrant"
-    not_if { ::Dir.exists?(dir) }
-  end
-end
-
 bin_paths = [
-  "/vagrant/workspace/router/bin",
+  # Put /vagrant/bin at the top of the PATH. This ensures that the local,
+  # development version of the "api-umbrella" bin file will be loaded from here
+  # first, so the api-umbrella service on the system loads the development copy
+  # of the app.
+  "/vagrant/bin",
   "/opt/api-umbrella/sbin",
   "/opt/api-umbrella/bin",
   "/opt/api-umbrella/embedded/sbin",
@@ -64,83 +39,88 @@ template "/etc/profile.d/api_umbrella_development.sh" do
   variables(:bin_paths => bin_paths)
 end
 
-# Now install API Umbrella's package.
-include_recipe "api-umbrella::default"
+include_recipe "build-essential"
 
-# Change permissions from the default package installer so the vagrant user
-# owns things.
-bash "api_umbrella_permissions" do
-  code <<-EOS
-    mkdir -p /opt/api-umbrella/embedded/apps/gatekeeper/shared/node_modules
-    chown -R vagrant:vagrant /opt/api-umbrella/embedded/apps/gatekeeper/shared/node_modules
-    chown -R vagrant:vagrant /opt/api-umbrella/embedded/apps/web/shared/bundle
-    chown -R vagrant:vagrant /opt/api-umbrella/embedded/apps/static-site/shared/bundle
-    chown -R vagrant:vagrant /opt/api-umbrella/embedded/apps/router/shared/node_modules
-  EOS
+yum_repository "wandisco-git" do
+  description "WANdisco Distribution of git"
+  baseurl "http://opensource.wandisco.com/rhel/6/git/$basearch"
+  gpgkey "http://opensource.wandisco.com/RPM-GPG-KEY-WANdisco"
+  enabled true
 end
 
-env = {
-  # Ensure that the "bundle" and "npm" commands find our API Umbrella embedded
-  # bins even on the first Chef run, when the profile.d script might not be in
-  # effect yet.
-  "PATH" => "#{bin_paths.join(":")}:#{ENV["PATH"]}",
+# Additional packages needed for runtime or building.
+# Based on the dependencies defined for the packaging process:
+# https://github.com/NREL/api-umbrella/blob/master/build/package/build
+packages = [
+  "bash",
+  "bzip2",
+  "gcc",
+  "gcc-c++",
+  "git",
+  "glibc",
+  "java-1.8.0-openjdk",
+  "libffi-devel",
+  "libuuid-devel",
+  "libxml2-devel",
+  "libyaml-devel",
+  "ncurses-devel",
+  "openssl-devel",
+  "patch",
+  "pcre-devel",
+  "tar",
+  "tcl-devel",
+  "unzip",
+  "util-linux-ng",
+  "which",
+  "xz",
+  "zlib-devel",
+]
 
-  # npm needs its HOME set in order to install things:
-  # http://stackoverflow.com/a/25282701
-  "HOME" => "/home/vagrant",
-}
+packages.each do |package_name|
+  package(package_name) do
+    action :install
+  end
+end
 
-# Run through all the development project checkouts and ensure that all
-# development/test dependencies get installed.
-bash "api_umbrella_web_install" do
-  code <<-EOS
-    cd /vagrant/workspace/web
-    rm -f ./vendor/bundle
-    ln -sf /opt/api-umbrella/embedded/apps/web/shared/bundle ./vendor/bundle
-    bundle install --path=vendor/bundle
-  EOS
-  environment(env)
+log "api_umbrella_make_warning" do
+  message "\n\n\nCompiling API Umbrella from source - this may take a while"
+  level :warn
+end
+
+# Install API Umbrella from source.
+execute "api_umbrella_make" do
+  command "make"
+  cwd "/vagrant"
   user "vagrant"
   group "vagrant"
+  environment("HOME" => ::Dir.home("vagrant"))
 end
 
-bash "api_umbrella_static_site_install" do
-  code <<-EOS
-    cd /vagrant/workspace/static-site
-    rm -f ./vendor/bundle
-    ln -sf /opt/api-umbrella/embedded/apps/static-site/shared/bundle ./vendor/bundle
-    bundle install --path=vendor/bundle
-  EOS
-  environment(env)
-  user "vagrant"
-  group "vagrant"
+execute "api_umbrella_make_install" do
+  command "make install"
+  cwd "/vagrant"
+  user "root"
+  group "root"
 end
 
-bash "api_umbrella_gatekeeper_install" do
-  code <<-EOS
-    cd /vagrant/workspace/gatekeeper
-    rm -f ./node_modules
-    ln -sf /opt/api-umbrella/embedded/apps/gatekeeper/shared/node_modules ./node_modules
-    npm install
-    sudo npm link
-  EOS
-  environment(env)
-  user "vagrant"
-  group "vagrant"
+execute "api_umbrella_make_after_install" do
+  command "make after_install"
+  cwd "/vagrant"
+  user "root"
+  group "root"
 end
 
-bash "api_umbrella_router_install" do
-  code <<-EOS
-    cd /vagrant/workspace/router
-    rm -f ./node_modules
-    ln -sf /opt/api-umbrella/embedded/apps/router/shared/node_modules ./node_modules
-    npm link api-umbrella-gatekeeper
-    npm install
-  EOS
-  environment(env)
+execute "api_umbrella_make_test_dependencies" do
+  command "make test_dependencies"
+  cwd "/vagrant"
   user "vagrant"
   group "vagrant"
+  environment("HOME" => ::Dir.home("vagrant"))
 end
+
+# Setup API Umbrella in development mode.
+node.set[:api_umbrella][:config][:app_env] = "development"
+include_recipe "api-umbrella::config_file"
 
 # Now start things up for the development environment.
 service "api-umbrella" do

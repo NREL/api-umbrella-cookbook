@@ -1,23 +1,18 @@
 name             'api-umbrella'
 maintainer       'National Renewable Energy Laboratory'
 maintainer_email 'nick.muerdter@nrel.gov'
-license          'All rights reserved'
+license          'MIT'
 description      'Installs/Configures api-umbrella'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version          '0.7.1'
 
 # For the "development" recipe
-depends "build-essential", "~> 2.1.3"
-depends "curl", "~> 2.0.1"
-depends "git", "~> 4.1.0"
-depends "phantomjs", "~> 1.0.3"
-depends "sudo", "~> 2.7.1"
+depends "build-essential"
+depends "sudo"
+depends "ulimit"
 
-# For the omibus build and test recipes
-depends "aws", "~> 2.6.0"
-depends "elasticsearch", "~> 0.3.13"
-depends "java", "~> 1.31.0"
-depends "mongodb", "~> 0.16.2"
-depends "python", "~> 1.4.6"
-depends "ulimit", "~> 0.3.3"
-depends "yum-epel", "~> 0.6.0"
+# For the "test_dependencies" recipe
+depends "nodejs"
+depends "phantomjs"
+depends "yum"
+depends "yum-epel"
