@@ -17,18 +17,6 @@ when "rhel"
   end
 end
 
-bin_paths = [
-  # Put /vagrant/bin at the top of the PATH. This ensures that the local,
-  # development version of the "api-umbrella" bin file will be loaded from here
-  # first, so the api-umbrella service on the system loads the development copy
-  # of the app.
-  "/vagrant/bin",
-  "/opt/api-umbrella/sbin",
-  "/opt/api-umbrella/bin",
-  "/opt/api-umbrella/embedded/sbin",
-  "/opt/api-umbrella/embedded/bin",
-]
-
 # Setup the shell so that API Umbrella's embedded directories are all on the
 # default PATH.
 template "/etc/profile.d/api_umbrella_development.sh" do
@@ -36,7 +24,27 @@ template "/etc/profile.d/api_umbrella_development.sh" do
   mode "0644"
   owner "root"
   group "root"
-  variables(:bin_paths => bin_paths)
+  variables({
+    :bin_paths => [
+      # Put /vagrant/bin at the top of the PATH. This ensures that the local,
+      # development version of the "api-umbrella" bin file will be loaded from
+      # here first, so the api-umbrella service on the system loads the
+      # development copy of the app.
+      "/vagrant/bin",
+      "/opt/api-umbrella/sbin",
+      "/opt/api-umbrella/bin",
+      "/opt/api-umbrella/embedded/sbin",
+      "/opt/api-umbrella/embedded/bin",
+    ],
+  })
+end
+
+# Also make sure the init.d script picks up the local development copy first.
+file "/etc/sysconfig/api-umbrella" do
+  content "PATH=/vagrant/bin:$PATH"
+  mode "0644"
+  owner "root"
+  group "root"
 end
 
 include_recipe "build-essential"
