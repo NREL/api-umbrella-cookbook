@@ -29,4 +29,3 @@ packages.each do |package_name|
     action :install
   end
 end
-

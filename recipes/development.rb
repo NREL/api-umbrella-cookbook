@@ -47,83 +47,50 @@ file "/etc/sysconfig/api-umbrella" do
   group "root"
 end
 
-include_recipe "build-essential"
-
-yum_repository "wandisco-git" do
-  description "WANdisco Distribution of git"
-  baseurl "http://opensource.wandisco.com/rhel/6/git/$basearch"
-  gpgkey "http://opensource.wandisco.com/RPM-GPG-KEY-WANdisco"
-  enabled true
-end
-
-# Additional packages needed for runtime or building.
-# Based on the dependencies defined for the packaging process:
-# https://github.com/NREL/api-umbrella/blob/master/build/package/build
-packages = [
-  "bash",
-  "bzip2",
-  "gcc",
-  "gcc-c++",
-  "git",
-  "glibc",
-  "java-1.8.0-openjdk",
-  "libffi-devel",
-  "libuuid-devel",
-  "libxml2-devel",
-  "libyaml-devel",
-  "ncurses-devel",
-  "openssl-devel",
-  "patch",
-  "pcre-devel",
-  "tar",
-  "tcl-devel",
-  "unzip",
-  "util-linux-ng",
-  "which",
-  "xz",
-  "zlib-devel",
-]
-
-packages.each do |package_name|
-  package(package_name) do
-    action :install
-  end
-end
-
 log "api_umbrella_make_warning" do
-  message "\n\n\nCompiling API Umbrella from source - this may take a while"
+  message "\n\n\nCompiling API Umbrella from source - this may take a while\nYou may view #{Chef::Config[:file_cache_path]}/api-umbrella-build.log for progress"
   level :warn
 end
 
-# Install API Umbrella from source.
-execute "api_umbrella_make" do
-  command "make"
+bash "api_umbrella_install_build_dependencies" do
+  code <<-eos
+    echo "" > #{Chef::Config[:file_cache_path]}/api-umbrella-build.log
+    chmod 777 #{Chef::Config[:file_cache_path]}/api-umbrella-build.log
+    ./build/scripts/install_build_dependencies &>> #{Chef::Config[:file_cache_path]}/api-umbrella-build.log
+  eos
+  cwd "/vagrant"
+  user "root"
+  group "root"
+end
+
+bash "api_umbrella_configure" do
+  code "./configure --enable-hadoop-analytics --enable-test-dependencies &>> #{Chef::Config[:file_cache_path]}/api-umbrella-build.log"
   cwd "/vagrant"
   user "vagrant"
   group "vagrant"
   environment("HOME" => ::Dir.home("vagrant"))
 end
 
-execute "api_umbrella_make_install" do
-  command "make install"
-  cwd "/vagrant"
-  user "root"
-  group "root"
-end
-
-execute "api_umbrella_make_after_install" do
-  command "make after_install"
-  cwd "/vagrant"
-  user "root"
-  group "root"
-end
-
-execute "api_umbrella_make_test_dependencies" do
-  command "make test_dependencies"
+bash "api_umbrella_make" do
+  code "make &>> #{Chef::Config[:file_cache_path]}/api-umbrella-build.log"
   cwd "/vagrant"
   user "vagrant"
   group "vagrant"
   environment("HOME" => ::Dir.home("vagrant"))
+end
+
+bash "api_umbrella_make_install" do
+  code "make install &>> #{Chef::Config[:file_cache_path]}/api-umbrella-build.log"
+  cwd "/vagrant"
+  user "root"
+  group "root"
+end
+
+bash "api_umbrella_make_after_install" do
+  code "make after-install &>> #{Chef::Config[:file_cache_path]}/api-umbrella-build.log"
+  cwd "/vagrant"
+  user "root"
+  group "root"
 end
 
 # Setup API Umbrella in development mode.
