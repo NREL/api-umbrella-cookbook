@@ -34,10 +34,8 @@ packages.each do |package_name|
   end
 end
 
-# Install shellcheck for bash script linting.
-#
-# This requires Haskell to build (there are no shellcheck binaries for CentOS
-# 6), which requires jumping through a few hoops. Based on
+# Install Haskell for bash script linting with shellcheck.
+# Based on:
 # https://github.com/koalaman/shellcheck/wiki/More-Installation-Guides
 #
 # Note that the haskell-platform 7.10.3 binaries don't appear compatible with
@@ -69,30 +67,8 @@ end
 
 # The haskell-platform binaries expect "libgmp.so.10" which isn't present on
 # CentOS 6. We'll symlink the older version into place as a hacky workaround
-# that seems to do the trick. Note that we're symlinking this into GHC's lib
-# directory to minimize any potential global impact, so specifying
-# LD_LIBRARY_PATH will be required when running haskell commands.
-link "#{ghc_dir}/lib/libgmp.so.10" do
+# that seems to do the trick.
+link "/usr/lib64/libgmp.so.10" do
   to "/usr/lib64/libgmp.so.3"
   only_if { File.exist?("/usr/lib64/libgmp.so.3") && !File.exist?("/usr/lib64/libgmp.so.10") }
-end
-
-bash "install_shellcheck" do
-  user "root"
-  code <<-eos
-    # Install shellcheck globally. LD_LIBRARY_PATH is set to workaround the
-    # CentOS 6 issues (see above), and the other flags help speed up build
-    # times.
-    env LD_LIBRARY_PATH=#{ghc_dir}/lib:$LD_LIBRARY_PATH cabal update
-    env LD_LIBRARY_PATH=#{ghc_dir}/lib:$LD_LIBRARY_PATH cabal install ShellCheck-#{shellcheck_version} \
-      --global \
-      --disable-library-profiling \
-      --disable-profiling \
-      --disable-optimization \
-      --disable-tests \
-      --disable-coverage \
-      --disable-benchmarks \
-      --disable-documentation
-  eos
-  not_if "/usr/local/bin/shellcheck --version | grep '^version: #{shellcheck_version}$'"
 end
