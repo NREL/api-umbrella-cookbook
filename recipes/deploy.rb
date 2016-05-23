@@ -5,11 +5,17 @@ include_recipe "build-essential"
 case(node["platform_family"])
 when "rhel", "fedora", "suse"
   package "zlib-devel"
-when "arch"
-  package "zlib"
 else
   package "zlib1g-dev"
 end
 
 # For installing our lua dependencies when deploying.
 package "cmake"
+
+# For building lyaml.
+case(node["platform_family"])
+when "rhel", "fedora", "suse"
+  package "libyaml-devel"
+else
+  package "libyaml-dev"
+end
