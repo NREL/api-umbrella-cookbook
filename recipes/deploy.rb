@@ -10,3 +10,6 @@ when "arch"
 else
   package "zlib1g-dev"
 end
+
+# For installing our lua dependencies when deploying.
+package "cmake"
