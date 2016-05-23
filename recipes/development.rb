@@ -77,6 +77,8 @@ bash "api_umbrella_make" do
   user "vagrant"
   group "vagrant"
   environment("HOME" => ::Dir.home("vagrant"))
+  # Extend timeout, since initial make can take a long time.
+  timeout 7200
 end
 
 bash "api_umbrella_make_install" do
