@@ -56,7 +56,7 @@ bash "api_umbrella_install_build_dependencies" do
   code <<-eos
     echo "" > #{Chef::Config[:file_cache_path]}/api-umbrella-build.log
     chmod 777 #{Chef::Config[:file_cache_path]}/api-umbrella-build.log
-    ./build/scripts/install_build_dependencies &>> #{Chef::Config[:file_cache_path]}/api-umbrella-build.log
+    ./build/scripts/install_build_dependencies 2>&1 | tee -a #{Chef::Config[:file_cache_path]}/api-umbrella-build.log; (exit ${PIPESTATUS[0]})
   eos
   cwd "/vagrant"
   user "root"
@@ -64,7 +64,7 @@ bash "api_umbrella_install_build_dependencies" do
 end
 
 bash "api_umbrella_configure" do
-  code "./configure --enable-hadoop-analytics --enable-test-dependencies &>> #{Chef::Config[:file_cache_path]}/api-umbrella-build.log"
+  code "./configure --enable-hadoop-analytics --enable-test-dependencies 2>&1 | tee -a #{Chef::Config[:file_cache_path]}/api-umbrella-build.log; (exit ${PIPESTATUS[0]})"
   cwd "/vagrant"
   user "vagrant"
   group "vagrant"
@@ -72,7 +72,7 @@ bash "api_umbrella_configure" do
 end
 
 bash "api_umbrella_make" do
-  code "make &>> #{Chef::Config[:file_cache_path]}/api-umbrella-build.log"
+  code "make 2>&1 | tee -a #{Chef::Config[:file_cache_path]}/api-umbrella-build.log; (exit ${PIPESTATUS[0]})"
   cwd "/vagrant"
   user "vagrant"
   group "vagrant"
@@ -80,14 +80,14 @@ bash "api_umbrella_make" do
 end
 
 bash "api_umbrella_make_install" do
-  code "make install &>> #{Chef::Config[:file_cache_path]}/api-umbrella-build.log"
+  code "make install 2>&1 | tee -a #{Chef::Config[:file_cache_path]}/api-umbrella-build.log; (exit ${PIPESTATUS[0]})"
   cwd "/vagrant"
   user "root"
   group "root"
 end
 
 bash "api_umbrella_make_after_install" do
-  code "make after-install &>> #{Chef::Config[:file_cache_path]}/api-umbrella-build.log"
+  code "make after-install 2>&1 | tee -a #{Chef::Config[:file_cache_path]}/api-umbrella-build.log; (exit ${PIPESTATUS[0]})"
   cwd "/vagrant"
   user "root"
   group "root"

@@ -1,13 +1,17 @@
 # Install nodejs for running the test suite.
 node.set[:nodejs][:install_method] = "binary"
-node.set[:nodejs][:version] = "0.10.40"
-node.set[:nodejs][:binary][:checksum][:linux_x64] = "0bb15c00fc4668ce3dc1a70a84b80b1aaaaea61ad7efe05dd4eb91165620a17e"
+node.set[:nodejs][:version] = "0.10.45"
+node.set[:nodejs][:binary][:checksum][:linux_x64] = "54d095d12b6227460f08ec81e50f9db930ec51fa05af1b7722fa85bd2cabb5d7"
 include_recipe "nodejs"
 
 # Install PhantomJS for api-umbrella-web tests.
-node.set[:phantomjs][:version] = "1.9.8"
-node.set[:phantomjs][:base_url] = "https://bitbucket.org/ariya/phantomjs/downloads"
+# Download binary from github mirror, since we're seeing semi-frequent 403
+# issues from bitbucket similar to:
+# https://github.com/Medium/phantomjs/issues/506
+node.set[:phantomjs][:version] = "2.1.1"
+node.set[:phantomjs][:base_url] = "https://github.com/Medium/phantomjs/releases/download/v#{node[:phantomjs][:version]}"
 node.set[:phantomjs][:basename] = "phantomjs-#{node[:phantomjs][:version]}-linux-#{node[:kernel][:machine]}"
+node.set[:phantomjs][:checksum] = "86dd9a4bf4aee45f1a84c9f61cf1947c1d6dce9b9e8d2a907105da7852460d2f"
 include_recipe "phantomjs::source"
 
 # For python-virtualenv.
