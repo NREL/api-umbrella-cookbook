@@ -47,6 +47,28 @@ file "/etc/sysconfig/api-umbrella" do
   group "root"
 end
 
+# Symlink the build directories off of the NFS mount and onto guest OS
+# partition for better build performance. This also ensures that when the
+# vagrant box is destroyed/recreated, the build will always be fresh.
+["build/work", "test/node_modules"].each do |path|
+  directory "/opt/api-umbrella-build/#{path}" do
+    recursive true
+    owner "vagrant"
+    group "vagrant"
+    mode "0755"
+  end
+
+  directory "/vagrant/#{path}" do
+    action :delete
+    recursive true
+    only_if { File.directory?("/vagrant/#{path}") && !File.symlink?("/vagrant/#{path}") }
+  end
+
+  link "/vagrant/#{path}" do
+    to "/opt/api-umbrella-build/#{path}"
+  end
+end
+
 log "api_umbrella_make_warning" do
   message "\n\n\nCompiling API Umbrella from source - this may take a while\nYou may view #{Chef::Config[:file_cache_path]}/api-umbrella-build.log for progress"
   level :warn
