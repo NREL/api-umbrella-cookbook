@@ -125,6 +125,8 @@ end
 
 # Setup API Umbrella in development mode.
 node.set[:api_umbrella][:config][:app_env] = "development"
+node.set[:api_umbrella][:config][:user] = "vagrant"
+node.set[:api_umbrella][:config][:group] = "vagrant"
 include_recipe "api-umbrella::config_file"
 
 # Now start things up for the development environment.
