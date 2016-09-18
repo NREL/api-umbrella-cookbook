@@ -50,7 +50,13 @@ end
 # Symlink the build directories off of the NFS mount and onto guest OS
 # partition for better build performance. This also ensures that when the
 # vagrant box is destroyed/recreated, the build will always be fresh.
-["build/work", "test/node_modules"].each do |path|
+[
+  "CMakeFiles",
+  "build/work",
+  "test/node_modules",
+  "src/api-umbrella/web-app/log",
+  "src/api-umbrella/web-app/tmp",
+].each do |path|
   directory "/opt/api-umbrella-build/#{path}" do
     recursive true
     owner "vagrant"
