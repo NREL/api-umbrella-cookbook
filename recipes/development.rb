@@ -96,7 +96,10 @@ bash "api_umbrella_configure" do
   cwd "/vagrant"
   user "vagrant"
   group "vagrant"
-  environment("HOME" => ::Dir.home("vagrant"))
+  environment({
+    "HOME" => ::Dir.home("vagrant"),
+    "USER" => "vagrant",
+  })
 end
 
 bash "api_umbrella_make" do
@@ -104,7 +107,10 @@ bash "api_umbrella_make" do
   cwd "/vagrant"
   user "vagrant"
   group "vagrant"
-  environment("HOME" => ::Dir.home("vagrant"))
+  environment({
+    "HOME" => ::Dir.home("vagrant"),
+    "USER" => "vagrant",
+  })
   # Extend timeout, since initial make can take a long time.
   timeout 7200
 end
