@@ -31,6 +31,14 @@ template "/etc/profile.d/api_umbrella_development.sh" do
       # here first, so the api-umbrella service on the system loads the
       # development copy of the app.
       "/vagrant/bin",
+      "/vagrant/build/work/dev-env/sbin",
+      "/vagrant/build/work/dev-env/bin",
+      "/vagrant/build/work/test-env/sbin",
+      "/vagrant/build/work/test-env/bin",
+      "/vagrant/build/work/stage/opt/api-umbrella/sbin",
+      "/vagrant/build/work/stage/opt/api-umbrella/bin",
+      "/vagrant/build/work/stage/opt/api-umbrella/embedded/sbin",
+      "/vagrant/build/work/stage/opt/api-umbrella/embedded/bin",
       "/opt/api-umbrella/sbin",
       "/opt/api-umbrella/bin",
       "/opt/api-umbrella/embedded/sbin",
