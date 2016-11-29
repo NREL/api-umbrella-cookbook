@@ -12,7 +12,5 @@ depends "sudo"
 depends "ulimit"
 
 # For the "test_dependencies" recipe
-depends "nodejs"
-depends "phantomjs"
 depends "yum"
 depends "yum-epel"
