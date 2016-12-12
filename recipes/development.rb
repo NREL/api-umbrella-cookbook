@@ -61,7 +61,7 @@ end
 [
   "CMakeFiles",
   "build/work",
-  "test/tmp/root",
+  "test/tmp/run",
 ].each do |path|
   directory "/opt/api-umbrella-build/#{path}" do
     recursive true
