@@ -70,6 +70,13 @@ end
     mode "0755"
   end
 
+  if(File.dirname(path) != ".")
+    directory File.join("/vagrant", File.dirname(path)) do
+      recursive true
+      mode "0755"
+    end
+  end
+
   directory "/vagrant/#{path}" do
     action :delete
     recursive true
@@ -90,7 +97,7 @@ bash "api_umbrella_install_build_dependencies" do
   code <<-eos
     echo "" > #{Chef::Config[:file_cache_path]}/api-umbrella-build.log
     chmod 777 #{Chef::Config[:file_cache_path]}/api-umbrella-build.log
-    ./build/scripts/install_build_dependencies 2>&1 | tee -a #{Chef::Config[:file_cache_path]}/api-umbrella-build.log; (exit ${PIPESTATUS[0]})
+    env INSTALL_TEST_DEPENDENCIES=true ./build/scripts/install_build_dependencies 2>&1 | tee -a #{Chef::Config[:file_cache_path]}/api-umbrella-build.log; (exit ${PIPESTATUS[0]})
   eos
   cwd "/vagrant"
   user "root"
@@ -133,6 +140,21 @@ bash "api_umbrella_make_after_install" do
   cwd "/vagrant"
   user "root"
   group "root"
+end
+
+bash "api_umbrella_admin_ui_install" do
+  code <<-eos
+    source /etc/profile.d/api_umbrella_development.sh
+    yarn 2>&1 | tee -a #{Chef::Config[:file_cache_path]}/api-umbrella-build.log; (exit ${PIPESTATUS[0]})
+    ./node_modules/.bin/bower install 2>&1 | tee -a #{Chef::Config[:file_cache_path]}/api-umbrella-build.log; (exit ${PIPESTATUS[0]})
+  eos
+  cwd "/vagrant-admin-ui"
+  user "vagrant"
+  group "vagrant"
+  environment({
+    "HOME" => ::Dir.home("vagrant"),
+    "USER" => "vagrant",
+  })
 end
 
 # Setup API Umbrella in development mode.
